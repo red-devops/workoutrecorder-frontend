@@ -1,0 +1,19 @@
+#APP
+app: "frontend"
+user: frontend
+group: frontend
+mode: u+rwx,g+r,o+r
+app_port: 80
+app_home: "/home/{{ user }}"
+app_data: "{{ app_home }}/data"
+app_config_home: "{{ app_home }}/config"
+app_bin_home: "{{ app_home }}/bin"
+app_log_home: "{{ app_home }}/log"
+app_version: 1.0.0
+sites_available_dir: /etc/nginx/sites-available
+
+#AWS
+region: "eu-central-1"
+
+#Consul
+consul_bootstrap_secret_name: Consul-Global-Managemen-Token-{{ env }}

@@ -1,0 +1,48 @@
+---
+# Task file for prerequisites
+- name: Update APT
+  apt:
+    upgrade: dist
+    update_cache: yes
+
+- name: Install prerequisites
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  loop: "{{ packages }}"
+
+- name: Start nginx
+  systemd:
+    name: nginx
+    state: started
+    daemon_reload: yes
+    enabled: yes
+
+- name: Create group {{ group }}
+  group:
+    name: "{{ group }}"
+    state: present
+
+- name: Create user {{ user }}
+  user:
+    name: "{{ user }}"
+    group: "{{ group }}"
+    state: present
+    createhome: yes
+    home: /home/{{ user }}
+    shell: /bin/bash
+
+- name: Crete app directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: "{{ mode }}"
+  with_items:
+    - "{{ app_home }}"
+    - "{{ app_data }}"
+    - "{{ app_config_home }}"
+    - "{{ app_bin_home }}"
+    - "{{ app_log_home }}"
+    - "{{ app_home }}/dest"

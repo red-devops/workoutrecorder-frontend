@@ -1,0 +1,126 @@
+<div class="container" id="main-container">
+  <div class="row">
+   
+       <button style="margin-bottom: 20px;" type="button" class="btn btn-primary" (click)="onOpenModal(null, 'add')"> Dodaj trening </button>
+    
+  </div>
+  <div class="row">
+    <table class="table">
+    <thead>
+      <tr>
+        <th scope="col"></th>
+        <th scope="col">Data</th>
+        <th scope="col">Dystans</th>
+        <th scope="col">Czas</th>
+        <th scope="col">Spalone kalorie</th>
+        <th scope="col">Uwagi</th>
+        <th scope="col"></th>
+        <th scope="col"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let workout of workouts">
+        <td></td>
+        <td>{{workout.date}}</td>
+        <td>{{workout.distance}}</td>
+        <td>{{workout.time}}</td>
+        <td>{{workout.calories}}</td>
+        <td>{{workout.comments}}</td>
+        <td> 
+          <button type="button" (click)="onOpenModal(workout, 'update')" class="btn btn-success">Edytuj</button>
+        </td>
+        <td>
+          <button type="button" (click)="onDeleteWorkout(workout.id)" class="btn btn-danger">X</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+
+<!-- Add Workout Modal -->
+<div class="modal fade" id="addWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="addWorkoutModelLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addWorkoutModelLabel">Dodaj trening</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       <form #addForm="ngForm" (ngSubmit)="onAddWorkout(addForm)">
+         <div class="form-group">
+           <label for="date">Data</label>
+           <input type="text" ngModel name="date" class="form-control" id="date" placeholder="YYYY-MM-dd" required>
+         </div>
+         <div class="form-group">
+          <label for="distance">Przebyty dystans</label>
+          <input type="number" ngModel name="distance" class="form-control" id="distance" placeholder="10" required>
+        </div>
+        <div class="form-group">
+          <label for="time">Czas</label>
+          <input type="text" ngModel name="time" class="form-control" id="time" placeholder="HH:MM:SS" required>
+        </div>
+        <div class="form-group">
+          <label for="calories">Spalone kalorie</label>
+          <input type="number" ngModel name="calories" class="form-control" id="calories" placeholder="100" required>
+        </div>
+        <div class="form-group">
+          <label for="comments">Uwagi</label>
+          <input type="text" ngModel name="comments" class="form-control" id="comments">
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="add-workout-form" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+          <button [disabled]="addForm.invalid" type="submit" class="btn btn-primary">Ok</button>
+        </div>
+       </form>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Update Workout Modal -->
+<div class="modal fade" id="updateWorkoutModal" tabindex="-1" role="dialog" aria-labelledby="updateWorkoutModelLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="updateWorkoutModelLabel">Edytuj trening</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       <form #updateForm="ngForm">
+        <input type="hidden" ngModel="{{updateWorkout?.id}}" name="id" class="form-control" id="id">
+         <div class="form-group">
+           <label for="date">Data</label>
+           <input type="text" ngModel="{{updateWorkout?.date}}" name="date" class="form-control" id="date" placeholder="YYYY-MM-dd">
+         </div>
+         <div class="form-group">
+          <label for="distance">Przebyty dystans</label>
+          <input type="number" ngModel="{{updateWorkout?.distance}}" name="distance" class="form-control" id="distance" placeholder="10">
+        </div>
+        <div class="form-group">
+          <label for="time">Czas</label>
+          <input type="text" ngModel="{{updateWorkout?.time}}" name="time" class="form-control" id="time" placeholder="HH:MM:SS">
+        </div>
+        <div class="form-group">
+          <label for="calories">Spalone kalorie</label>
+          <input type="number" ngModel="{{updateWorkout?.calories}}" name="calories" class="form-control" id="calories" placeholder="100">
+        </div>
+        <div class="form-group">
+          <label for="comments">Uwagi</label>
+          <input type="text" ngModel="{{updateWorkout?.comments}}" name="comments" class="form-control" id="comments">
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="update-workout-form" class="btn btn-secondary" data-dismiss="modal">Zamknij</button>
+          <button (click)="onUpdateWorkout(updateForm.value)" type="submit" class="btn btn-primary">Ok</button>
+        </div>
+       </form>
+      </div>
+      
+    </div>
+  </div>
+</div>

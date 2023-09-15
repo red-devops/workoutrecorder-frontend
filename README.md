@@ -1,0 +1,4 @@
+# Workoutrecorder - Frontend App
+
+The content of this project is part of the post on blog https://red-devops.pl/ <br>
+The repository consists of two parts. The first part contained in the frontend folder contains the source code of the Angular application. The second part of the application, contained in the ansibl folder, contains the Ansible playbook that deploys applications to remote servers. This repository is part of a larger workout-recorder project which can be found here https://github.com/red-devops/Workout-recorder-consul. The application should be deployed on hoset after executing the HashiCorp Terraform from folder 100-app-infra/180-instances from the main repo.

@@ -1,0 +1,47 @@
+---
+# Task file for workoutrecorder frontend
+- name: Download artifact
+  copy:
+    src: "{{ playbook_dir }}/workoutrecorder-{{ app }}-{{ app_version }}.zip"
+    dest: "{{ app_home }}/dest/workoutrecorder-{{ app }}-{{ app_version }}.zip"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: "{{ mode }}"
+
+- name: Unzip artifact
+  unarchive:
+    src: "{{ app_home }}/dest/workoutrecorder-{{ app }}-{{ app_version }}.zip"
+    dest: "{{ app_home }}/dest"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: "u+rwx,g+r,o+rx"
+    remote_src: yes
+  
+- name: Copy nginx configuration
+  template:
+    src: "frontend-app"
+    dest: "{{ sites_available_dir }}/frontend-app"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: "u+rwx,g+r,o+rx"
+
+- name: Create a symbolic link to the configuration file
+  file:
+    src: "{{ sites_available_dir }}/frontend-app"
+    dest: /etc/nginx/sites-enabled/frontend-app
+    state: link
+
+- name: Set default page to frontend application
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    search_string: "include /etc/nginx/sites-enabled/*;"
+    line: "\tinclude /etc/nginx/sites-enabled/frontend-app*;"
+    owner: root
+    group: root
+
+- name: Restart Nginx
+  systemd:
+    name: nginx
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

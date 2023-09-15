@@ -1,0 +1,52 @@
+name: Release workoutrecorder-frontend
+on: 
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'App version to release'
+        required: true
+        default: '1.0.0'
+      fabioip:
+        description: 'Public fabio ip addres'
+        required: true
+  
+jobs:
+  release:
+    name: Release workoutrecorder-frontend
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+      
+      - name: Set app version
+        run: |
+          version=${{ github.event.inputs.version }}
+          sed -i "s/<VERSION>/$version/g" frontend/package.json
+
+      - name: Set fabio public ip 
+        run: |
+          fabioip=${{ github.event.inputs.fabioip }}
+          sed -i "s/<FABIO_PUBLIC_IP>/$fabioip/g"  frontend/src/environments/environment.prod.ts
+
+      - name: Install dependency 
+        run: |
+          mkdir app
+          cp frontend/package.json app
+          cd app
+          npm install
+
+      - name: Build and Package
+        run: |
+          cp frontend/* app -r
+          cd app
+          npm run build --prod
+          zip -jr workoutrecorder-frontend-${{ github.event.inputs.version }}.zip dist/workoutrecorder-front/*
+          
+      - name: Upload Release
+        run: |
+          aws s3 cp \
+          app/workoutrecorder-frontend-${{ github.event.inputs.version }}.zip \
+          s3://red-devops-workout-recorder/release/workoutrecorder-frontend-${{ github.event.inputs.version }}.zip

@@ -1,0 +1,62 @@
+---
+# Task file for consul
+- name: Render script
+  template:
+    src: "{{ item }}"
+    dest: "{{ item }}"
+    mode: "{{ mode }}"
+  delegate_to: localhost
+  with_items:
+    - "get_keygen.sh"
+    - "get_service_token.sh"
+
+- name: Get keygen form vault
+  command: "./get_keygen.sh"
+  register: keygen_output
+  delegate_to: localhost
+
+- name: Set keygen variable
+  set_fact:
+    keygen: "{{ keygen_output.stdout | from_json | json_query('data.data.key') }}"
+
+- name: Get service token
+  command: "./get_service_token.sh"
+  register: service_token_output
+  delegate_to: localhost
+
+- name: Set service token
+  set_fact:
+    service_token: "{{ service_token_output.stdout }}"
+
+- name: Install consul
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ app_bin_home }}"
+    remote_src: yes
+    owner: "{{ user }}"
+    group: "{{ group }}"
+  with_items:
+    - "https://releases.hashicorp.com/consul/1.16.0/consul_1.16.0_linux_amd64.zip"
+  
+- name: Copy configuration
+  template:
+    src: "config.hcl"
+    dest: "{{ app_config_home }}/consul_config.hcl"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: "{{ mode }}"
+
+- name: Copy systemd consul-agent.service
+  template:
+    src: "consul-agent.service"
+    dest: "/usr/lib/systemd/system/consul-agent.service"
+    owner: "{{ user }}"
+    group: "{{ group }}"
+    mode: "{{ mode }}"
+  
+- name: Start Consul agent
+  systemd:
+    name: consul-agent
+    state: restarted
+    daemon_reload: yes
+    enabled: yes

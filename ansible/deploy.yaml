@@ -1,0 +1,17 @@
+---
+- name: Deploy workoutrecorder backend
+  hosts: all
+  become: true
+  roles:
+    
+    - role: prerequisites
+      tags:
+        - prerequisites
+        
+    - role: consul
+      tags:
+        - consul
+
+    - role: frontend
+      tags:
+        - frontend

@@ -1,0 +1,52 @@
+name: Deploy on prod
+on: 
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'App version to deploy'
+        required: true
+        default: '1.0.0'
+
+env:
+  ENVIRONMENT: prod
+  REGION: eu-central-1
+  TEAM: Platform-Engineering
+  
+jobs:
+  release:
+    name: Deploy workoutrecorder-frontend
+    runs-on: [self-hosted, prod]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Pull SSH key for Ansible connection
+        run: |
+          cd ansible
+          aws s3 cp \
+          s3://red-devops-workout-recorder/post-provisioning/app_${{ env.ENVIRONMENT }}_key.pem \
+          app_${{ env.ENVIRONMENT }}_key.pem
+          chmod 600 app_${{ env.ENVIRONMENT }}_key.pem
+      
+      - name: Download artifact
+        run: |
+          cd ansible
+          aws s3 cp \
+          s3://red-devops-workout-recorder/release/workoutrecorder-frontend-${{ github.event.inputs.version }}.zip \
+          workoutrecorder-frontend-${{ github.event.inputs.version }}.zip
+
+      - name: Ansible Playbook
+        run: |
+          cd ansible
+          ansible-playbook \
+          deploy.yaml \
+          -i ./inventories/${{ env.ENVIRONMENT }}/inventory_aws_ec2.yaml \
+          -extra-vars="app_version=${{ github.event.inputs.version }}" \
+          --private-key app_${{ env.ENVIRONMENT }}_key.pem 
+          
+      - name: Remove SSH key
+        if: always()
+        run: |
+          cd ansible
+          rm app_${{ env.ENVIRONMENT }}_key.pem -f
+        continue-on-error: true

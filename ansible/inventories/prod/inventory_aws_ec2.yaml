@@ -1,0 +1,13 @@
+---
+plugin: aws_ec2
+regions:
+  - "eu-central-1"
+filters:
+  instance-state-name: running
+  tag:Name: EC2-prod-backend-ASG
+  tag:Environment: prod
+  tag:ostype: linux
+compose:
+  private_ip_address: private_ip_address
+hostnames:
+  - private-ip-address
